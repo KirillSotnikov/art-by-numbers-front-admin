@@ -56,23 +56,22 @@ export const constantRoutes = [
   },
 
   {
-    path: '/example',
+    path: '/products',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
+    name: 'Products',
+    meta: { title: 'Products', icon: 'el-icon-s-help' },
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        path: 'list',
+        name: 'List',
+        component: () => import('@/views/table/products-list'),
+        meta: { title: 'Products list', icon: 'table' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
+        path: 'create',
+        name: 'Create',
         component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        meta: { title: 'Create product', icon: 'tree' }
       }
     ]
   },
