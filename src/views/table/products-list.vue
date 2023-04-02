@@ -1,14 +1,199 @@
 <template>
   <div class="app-container">
     <el-dialog
-      title="Tips"
+      title="Create product"
       :visible.sync="createDialogVisible"
-      fullscreen
+      @closed="closeCreateDialog"
     >
-      <span>This is a message</span>
+      <el-form :model="createForm" :rules="rules" ref="createForm" label-width="140px" class="demo-ruleForm">
+        <el-form-item label="Name (UA)" prop="nameUa">
+          <el-input v-model="createForm.nameUa"></el-input>
+        </el-form-item>
+        <el-form-item label="Name (RU)" prop="nameRu">
+          <el-input v-model="createForm.nameRu"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Type" prop="type">
+          <el-select v-model="createForm.type" placeholder="Product type">
+            <el-option
+              v-for="(item, index) in Object.values(productTypeEnum)"
+              :key="index"
+              :label="item | productTypeFilter"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Category" prop="category">
+          <el-select v-model="createForm.category" placeholder="Product category">
+            <el-option
+              v-for="(item, index) in Object.values(categoryEnum)"
+              :key="index"
+              :label="item | categoryFilter"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Size" prop="size">
+          <el-select v-model="createForm.size" placeholder="Product size">
+            <el-option
+              v-for="(item, index) in Object.values(sizeEnum)"
+              :key="index"
+              :label="item"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Difficult" prop="difficult">
+          <el-select v-model="createForm.difficult" placeholder="Product difficult">
+            <el-option
+              v-for="(item, index) in Object.values(difficultEnum)"
+              :key="index"
+              :label="item"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="In sale" prop="inSale">
+          <el-switch v-model="createForm.inSale"></el-switch>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Price" prop="price">
+          <el-input min="0" v-model="createForm.price" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="Discount" prop="discountPrice">
+          <el-input min="0" v-model="createForm.discountPrice" type="number"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Description (UA)" prop="descUa">
+          <el-input type="textarea" v-model="createForm.descUa"></el-input>
+        </el-form-item>
+        <el-form-item label="Description (RU)" prop="descRu">
+          <el-input type="textarea" v-model="createForm.descRu"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Gallery" prop="gallery">
+          <el-upload
+            class="upload-demo"
+            :auto-upload="false"
+            :on-change="handleCreateUpload"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-preview="handleCreatePreview"
+            :on-remove="handleCreateRemove"
+            :before-remove="beforeCreateRemove"
+            multiple
+            accept="image/*"
+            :file-list="fileCreateList">
+            <el-button size="small" type="primary">Click to upload</el-button>
+            <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 2Mb</div>
+          </el-upload>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="closeCreateDialog">Cancel</el-button>
-        <el-button type="primary" @click="closeCreateDialog">Confirm</el-button>
+        <el-button @click="resetCreateForm">Cancel</el-button>
+        <el-button type="primary" @click="submitCreateForm">Confirm</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="Edit product"
+      :visible.sync="editDialogVisible"
+      @closed="closeEditDialog"
+    >
+      <el-form :model="editForm" :rules="rules" ref="editForm" label-width="140px" class="demo-ruleForm">
+        <el-form-item label="Name (UA)" prop="nameUa">
+          <el-input v-model="editForm.nameUa"></el-input>
+        </el-form-item>
+        <el-form-item label="Name (RU)" prop="nameRu">
+          <el-input v-model="editForm.nameRu"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Type" prop="type">
+          <el-select v-model="editForm.type" placeholder="Product type">
+            <el-option
+              v-for="(item, index) in Object.values(productTypeEnum)"
+              :key="index"
+              :label="item | productTypeFilter"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Category" prop="category">
+          <el-select v-model="editForm.category" placeholder="Product category">
+            <el-option
+              v-for="(item, index) in Object.values(categoryEnum)"
+              :key="index"
+              :label="item | categoryFilter"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Size" prop="size">
+          <el-select v-model="editForm.size" placeholder="Product size">
+            <el-option
+              v-for="(item, index) in Object.values(sizeEnum)"
+              :key="index"
+              :label="item"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="Difficult" prop="difficult">
+          <el-select v-model="editForm.difficult" placeholder="Product difficult">
+            <el-option
+              v-for="(item, index) in Object.values(difficultEnum)"
+              :key="index"
+              :label="item"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="In sale" prop="inSale">
+          <el-switch v-model="editForm.inSale"></el-switch>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Price" prop="price">
+          <el-input min="0" v-model="editForm.price" type="number"></el-input>
+        </el-form-item>
+        <el-form-item label="Discount" prop="discountPrice">
+          <el-input min="0" v-model="editForm.discountPrice" type="number"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Description (UA)" prop="descUa">
+          <el-input type="textarea" v-model="editForm.descUa"></el-input>
+        </el-form-item>
+        <el-form-item label="Description (RU)" prop="descRu">
+          <el-input type="textarea" v-model="editForm.descRu"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
+        <el-form-item label="Gallery" prop="gallery">
+          <div
+            class="flex-row"
+            v-for="(item, index) in (productToEdit ? productToEdit.gallery.images : [])"
+            :key="index"
+          >
+            <img
+              :src="item"
+              class="gallery-image"
+            >
+            <el-button type="danger" icon="el-icon-delete" circle></el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="New images" prop="gallery">
+          <el-upload
+            class="upload-demo"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-preview="handleEditPreview"
+            :on-remove="handleEditRemove"
+            :before-remove="beforeEditRemove"
+            multiple
+            :file-list="fileEditList">
+            <el-button size="small" type="primary">Click to upload</el-button>
+            <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 2Mb</div>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="resetEditForm">Cancel</el-button>
+        <el-button type="primary" @click="submitEditForm">Confirm</el-button>
       </span>
     </el-dialog>
     <div class="flex-row justify-between">
@@ -104,7 +289,7 @@
       </el-table-column>
       <el-table-column align="center" label="Is hidden" width="100">
         <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.deletedAt" disabled>
+          <el-checkbox v-model="!!scope.row.deletedAt" disabled>
             {{scope.row.deletedAt ? 'Yes' : 'No'}}
           </el-checkbox>
         </template>
@@ -131,8 +316,16 @@
       <el-table-column align="center" fixed="right" label="Actions" width="170">
         <template slot-scope="scope">
           <div class="flex-row">
-            <el-button type="primary" plain>Edit</el-button>
-            <el-button type="danger" plain>Hide</el-button>
+            <el-button @click="openEditDialog(scope.row.id)" type="primary" plain>Edit</el-button>
+            <el-popconfirm
+              title="Are you sure to hide this?"
+              confirm-button-text='OK'
+              cancel-button-text='No, Thanks'
+              icon="el-icon-info"
+              icon-color="red"
+            >
+              <el-button slot="reference" type="danger" plain>Hide</el-button>
+            </el-popconfirm>
           </div>
         </template>
       </el-table-column>
@@ -151,9 +344,27 @@
 
 <script>
 import { getList } from '@/api/table'
-import { productTypeLabels, categoryLabels } from '@/types'
+import FileUpload from 'vue-upload-component'
+import {productTypeLabels, categoryLabels, ProductType, Category, ProductSize, Difficult} from '@/types'
+
+const initialForm = {
+  nameRu: '',
+  nameUa: '',
+  type: ProductType.patriotic,
+  category: Category.picture_by_numbers,
+  size: ProductSize["30_30"],
+  difficult: Difficult.ONE,
+  price: 0,
+  discountPrice: undefined,
+  inSale: false,
+  descRu: '',
+  descUa: ''
+}
 
 export default {
+  components: {
+    FileUpload
+  },
   filters: {
     productTypeFilter(type) {
       return productTypeLabels[type]
@@ -181,6 +392,53 @@ export default {
       showHidden: true,
       search: '',
       createDialogVisible: false,
+      productTypeEnum: ProductType,
+      categoryEnum: Category,
+      sizeEnum: ProductSize,
+      difficultEnum: Difficult,
+      fileCreateList: [],
+      fileEditList: [],
+      // fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}]
+
+
+      editDialogVisible: false,
+      productToEdit: null,
+
+      rules: {
+        nameRu: [
+          { required: true, message: 'Please input product name (RU)', trigger: 'blur' },
+        ],
+        nameUa: [
+          { required: true, message: 'Please input product name (UA)', trigger: 'blur' },
+        ],
+        type: [
+          { required: true, message: 'Please select product type', trigger: 'change' }
+        ],
+        category: [
+          { required: true, message: 'Please select product category', trigger: 'change' }
+        ],
+        size: [
+          { required: true, message: 'Please select product size', trigger: 'change' }
+        ],
+        difficult: [
+          { required: true, message: 'Please select product difficult', trigger: 'change' }
+        ],
+        price: [
+          { required: true, message: 'Please input product price', trigger: 'blur' },
+          { min: 1, message: 'Price should be at least 1', trigger: 'blur' },
+        ],
+        discountPrice: [
+          { min: 1, message: 'Price should be at least 1', trigger: 'blur' },
+        ],
+        descRu: [
+          { required: true, message: 'Please input product description (RU)', trigger: 'blur' }
+        ],
+        descUa: [
+          { required: true, message: 'Please input product description (UA)', trigger: 'blur' }
+        ],
+      },
+      createForm: initialForm,
+      editForm: initialForm,
     }
   },
   created() {
@@ -190,6 +448,38 @@ export default {
     '$route.query.create': {
       handler(val) {
         this.createDialogVisible = val === 'true';
+      },
+      immediate: true
+    },
+    '$route.query.edit': {
+      async handler(val) {
+        if (!val) {
+          this.productToEdit = null;
+          this.editForm = initialForm;
+          this.editDialogVisible = false;
+        }
+        if (!this.list) {
+          await new Promise((r) => setTimeout(r, 2000));
+          if (!this.list) return;
+        }
+        const product = this.list.find((item) => item.id === val);
+        console.log(product);
+        if (!product) return;
+        this.productToEdit = product;
+        this.editForm = {
+          nameRu: product.name,
+          nameUa: product.name,
+          type: product.type,
+          category: product.category,
+          size: product.size,
+          difficult: product.difficult,
+          price: product.price,
+          discountPrice: product.discountPrice,
+          inSale: product.inSale ?? false,
+          descRu: product.description,
+          descUa: product.description,
+        }
+        this.editDialogVisible = true;
       },
       immediate: true
     },
@@ -218,6 +508,61 @@ export default {
     },
   },
   methods: {
+    handleCreateRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handleCreatePreview(file) {
+      console.log('handleCreatePreview', file);
+    },
+    handleCreateUpload(file) {
+      const limit = 1024 * 1024 * 2;
+      if (file.size > limit) {
+        this.$message.error('Image size is larger than 2Mb');
+      }
+      console.log('handleCreateUpload', file);
+    },
+    beforeCreateRemove(file, fileList) {
+      return this.$confirm(`Do you want to remove ${ file.name } ?`);
+    },
+    handleEditRemove(file, fileList) {
+      console.log(file, fileList);
+    },
+    handleEditPreview(file) {
+      console.log(file);
+    },
+    beforeEditRemove(file, fileList) {
+      return this.$confirm(`Cancel the transfert of ${ file.name } ?`);
+    },
+    submitCreateForm() {
+      this.$refs.createForm.validate((valid) => {
+        if (valid) {
+          alert('submit!');
+          this.closeCreateDialog();
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    resetCreateForm() {
+      this.$refs.createForm.resetFields();
+      this.closeCreateDialog();
+    },
+    submitEditForm() {
+      this.$refs.editForm.validate((valid) => {
+        if (valid) {
+          alert('submit!');
+          this.closeEditDialog();
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
+    },
+    resetEditForm() {
+      this.$refs.editForm.resetFields();
+      this.closeEditDialog();
+    },
     openCreateDialog() {
       this.$router.push({ path: this.$route.path, query: { ...this.$route.query, create: 'true' } })
     },
@@ -225,6 +570,22 @@ export default {
       const newQueryParams = {
         ...this.$route.query,
         create: undefined,
+      };
+      this.$router.push({
+        path: this.$route.path,
+        query: newQueryParams,
+      })
+    },
+    openEditDialog(id) {
+      this.$router.push({
+        path: this.$route.path,
+        query: { ...this.$route.query, edit: id }
+      })
+    },
+    closeEditDialog() {
+      const newQueryParams = {
+        ...this.$route.query,
+        edit: undefined,
       };
       this.$router.push({
         path: this.$route.path,
@@ -295,5 +656,14 @@ export default {
 }
 .flex-wrap{
   flex-wrap: wrap;
+}
+.upload-button{
+  background-color: #409EFF;
+  color: white;
+  padding: 0.5rem;
+  font-family: sans-serif;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  margin-top: 1rem;
 }
 </style>

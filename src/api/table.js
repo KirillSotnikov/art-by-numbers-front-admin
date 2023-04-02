@@ -3,7 +3,8 @@ import { ProductType, ProductSize, Difficult, Category } from '@/types'
 
 const mockCards = [
   {
-    id: String(Math.floor(Math.random() * 1000)),
+    // id: String(Math.floor(Math.random() * 1000)),
+    id: 'qwedsa',
     type: ProductType.mosaik,
     articul: 'articul',
     size: ProductSize['30_30'],
