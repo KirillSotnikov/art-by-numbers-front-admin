@@ -6,6 +6,10 @@
       @closed="closeCreateDialog"
     >
       <el-form :model="createForm" :rules="rules" ref="createForm" label-width="140px" class="demo-ruleForm">
+        <el-form-item label="Articul" prop="articul">
+          <el-input v-model="createForm.articul"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
         <el-form-item label="Name (UA)" prop="nameUa">
           <el-input v-model="createForm.nameUa"></el-input>
         </el-form-item>
@@ -99,6 +103,10 @@
       @closed="closeEditDialog"
     >
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="140px" class="demo-ruleForm">
+        <el-form-item label="Articul" prop="articul">
+          <el-input v-model="editForm.articul"></el-input>
+        </el-form-item>
+        <el-divider></el-divider>
         <el-form-item label="Name (UA)" prop="nameUa">
           <el-input v-model="editForm.nameUa"></el-input>
         </el-form-item>
@@ -350,6 +358,7 @@ import {productTypeLabels, categoryLabels, ProductType, Category, ProductSize, D
 const initialForm = {
   nameRu: '',
   nameUa: '',
+  articul: '',
   type: ProductType.patriotic,
   category: Category.picture_by_numbers,
   size: ProductSize["30_30"],
@@ -411,6 +420,9 @@ export default {
         nameUa: [
           { required: true, message: 'Please input product name (UA)', trigger: 'blur' },
         ],
+        articul: [
+          { required: true, message: 'Please input product articul', trigger: 'blur' },
+        ],
         type: [
           { required: true, message: 'Please select product type', trigger: 'change' }
         ],
@@ -467,6 +479,7 @@ export default {
         if (!product) return;
         this.productToEdit = product;
         this.editForm = {
+          articul: product.articul,
           nameRu: product.name,
           nameUa: product.name,
           type: product.type,
