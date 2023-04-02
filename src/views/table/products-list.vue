@@ -1,5 +1,16 @@
 <template>
   <div class="app-container">
+    <el-dialog
+      title="Tips"
+      :visible.sync="createDialogVisible"
+      fullscreen
+    >
+      <span>This is a message</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeCreateDialog">Cancel</el-button>
+        <el-button type="primary" @click="closeCreateDialog">Confirm</el-button>
+      </span>
+    </el-dialog>
     <div class="flex-row justify-between">
       <div class="flex-row">
         <el-checkbox v-model="showHidden">
@@ -13,7 +24,7 @@
           placeholder="Search (name, articul)"
         />
       </div>
-      <el-button type="success" plain>Create new product</el-button>
+      <el-button @click="openCreateDialog" type="success" plain>Create new product</el-button>
     </div>
     <el-divider></el-divider>
     <el-table
@@ -98,10 +109,22 @@
           </el-checkbox>
         </template>
       </el-table-column>
+      <el-table-column align="center" show-overflow-tooltip label="Gallery" width="241">
+        <template slot-scope="scope">
+          <div class="flex-row flex-wrap">
+            <img
+              v-for="(item, index) in scope.row.gallery.images"
+              :key="index"
+              :src="item"
+              class="gallery-image"
+            >
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column align="center" show-overflow-tooltip label="Description" width="200">
         <template slot-scope="scope">
           <p class="word-bread">
-          {{ scope.row.description }}
+            {{ scope.row.description }}
           </p>
         </template>
       </el-table-column>
@@ -145,7 +168,7 @@ export default {
         deleted: 'danger'
       }
       return statusMap[status]
-    },
+    }
   },
   data() {
     return {
@@ -156,13 +179,20 @@ export default {
       pageSize: 10,
       total: 0,
       showHidden: true,
-      search: ''
+      search: '',
+      createDialogVisible: false,
     }
   },
   created() {
     this.fetchData()
   },
   watch: {
+    '$route.query.create': {
+      handler(val) {
+        this.createDialogVisible = val === 'true';
+      },
+      immediate: true
+    },
     search: {
       handler() {
         this.page = 1;
@@ -188,6 +218,19 @@ export default {
     },
   },
   methods: {
+    openCreateDialog() {
+      this.$router.push({ path: this.$route.path, query: { ...this.$route.query, create: 'true' } })
+    },
+    closeCreateDialog() {
+      const newQueryParams = {
+        ...this.$route.query,
+        create: undefined,
+      };
+      this.$router.push({
+        path: this.$route.path,
+        query: newQueryParams,
+      })
+    },
     getDisplayData() {
       if (this.list) {
         const filteredSearch = [...this.list].filter((item) => {
@@ -229,6 +272,13 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
+.gallery-image{
+  width: 63px;
+  height: 63px;
+  margin: 5px;
+  border-radius: 5px;
+}
+
 .my-0{
   margin-top: 0;
   margin-bottom: 0;
@@ -242,5 +292,8 @@ export default {
 }
 .justify-between{
   justify-content: space-between;
+}
+.flex-wrap{
+  flex-wrap: wrap;
 }
 </style>

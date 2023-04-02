@@ -68,9 +68,9 @@ export const constantRoutes = [
         meta: { title: 'Products list', icon: 'table' }
       },
       {
-        path: 'create',
+        path: 'list?create=true',
         name: 'Create',
-        component: () => import('@/views/tree/index'),
+        component: () => import('@/views/table/products-list'),
         meta: { title: 'Create product', icon: 'tree' }
       }
     ]

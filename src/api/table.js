@@ -16,6 +16,7 @@ const mockCards = [
         'https://mk.holst.kz/image/catalog/010.jpg',
         'https://mk.holst.kz/image/catalog/010.jpg',
         'https://mk.holst.kz/image/catalog/010.jpg',
+        'https://mk.holst.kz/image/catalog/010.jpg',
       ]
     },
     inSale: Math.random() > 0.5,
