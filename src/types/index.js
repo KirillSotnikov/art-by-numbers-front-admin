@@ -84,6 +84,7 @@ export const categoryLabels = {
 
 export const DeliveryType = Object.freeze({
   POST:'post',
+  POSTOMAT:'postomat',
   TAKEAWAY:'takeaway',
 })
 
@@ -121,4 +122,5 @@ export const orderStatusLabels = {
 export const orderDeliveryTypeLabels = {
   [DeliveryType.TAKEAWAY]: 'Самовивіз',
   [DeliveryType.POST]: 'Відділення НП',
+  [DeliveryType.POSTOMAT]: 'Поштомат НП',
 }

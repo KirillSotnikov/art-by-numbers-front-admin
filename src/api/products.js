@@ -327,14 +327,23 @@ const mockCards = [
   },
 ]
 
-export const getProductList = async (params) => {
-  // return request({
-  //   url: '/vue-admin-template/table/list',
-  //   method: 'get',
-  //   params
-  // })
-  await new Promise((r) => { setTimeout(r, 200) });
+export const getProductList = async () => {
+  const res = await request({
+    url: '/api/v1/products',
+    method: 'get',
+  })
   return {
-    data: mockCards
+    data: res.data
+  }
+}
+
+export const addProduct = async (data) => {
+  const res = await request({
+    url: '/api/v1/products',
+    method: 'post',
+    data,
+  })
+  return {
+    data: res.data
   }
 }

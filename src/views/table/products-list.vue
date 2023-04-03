@@ -85,6 +85,7 @@
             :on-remove="handleCreateRemove"
             :before-remove="beforeCreateRemove"
             multiple
+            list-type="picture"
             accept="image/*"
             :file-list="fileCreateList">
             <el-button size="small" type="primary">Click to upload</el-button>
@@ -366,6 +367,7 @@
 import { getProductList } from '@/api/products'
 import FileUpload from 'vue-upload-component'
 import {productTypeLabels, categoryLabels, ProductType, Category, ProductSize, Difficult} from '@/types'
+import {uploadImage} from "@/api/image-upload";
 
 const initialForm = {
   nameRu: '',
@@ -535,16 +537,23 @@ export default {
   methods: {
     handleCreateRemove(file, fileList) {
       console.log(file, fileList);
+      this.fileCreateList = fileList;
     },
     handleCreatePreview(file) {
       console.log('handleCreatePreview', file);
     },
-    handleCreateUpload(file) {
-      const limit = 1024 * 1024 * 2;
-      if (file.size > limit) {
-        this.$message.error('Image size is larger than 2Mb');
-      }
-      console.log('handleCreateUpload', file);
+    async handleCreateUpload(file) {
+      const res = await uploadImage(file.raw);
+      const imageUrl = res.data.imageUrl
+      const filename = imageUrl.replace(/^.*[\\\/]/, '')
+      this.fileCreateList = [
+        ...this.fileCreateList,
+        {
+          name: filename,
+          url: imageUrl,
+        }
+      ]
+      console.log('fileCreateList', this.fileCreateList);
     },
     beforeCreateRemove(file, fileList) {
       return this.$confirm(`Do you want to remove ${ file.name } ?`);
