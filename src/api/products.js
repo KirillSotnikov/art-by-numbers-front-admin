@@ -327,7 +327,7 @@ const mockCards = [
   },
 ]
 
-export const getList = async (params) => {
+export const getProductList = async (params) => {
   // return request({
   //   url: '/vue-admin-template/table/list',
   //   method: 'get',

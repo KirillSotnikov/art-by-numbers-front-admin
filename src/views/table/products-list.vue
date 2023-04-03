@@ -213,7 +213,7 @@
       <div>
         <el-input
           v-model="search"
-          size="mini"
+          size="small"
           placeholder="Search (name, articul)"
         />
       </div>
@@ -326,6 +326,17 @@
           <div class="flex-row">
             <el-button @click="openEditDialog(scope.row.id)" type="primary" plain>Edit</el-button>
             <el-popconfirm
+              v-if="scope.row.deletedAt"
+              title="Are you sure to show this?"
+              confirm-button-text='OK'
+              cancel-button-text='No, Thanks'
+              icon="el-icon-info"
+              icon-color="red"
+            >
+              <el-button slot="reference" type="info" plain>Show</el-button>
+            </el-popconfirm>
+            <el-popconfirm
+              v-else
               title="Are you sure to hide this?"
               confirm-button-text='OK'
               cancel-button-text='No, Thanks'
@@ -351,7 +362,7 @@
 </template>
 
 <script>
-import { getList } from '@/api/table'
+import { getProductList } from '@/api/products'
 import FileUpload from 'vue-upload-component'
 import {productTypeLabels, categoryLabels, ProductType, Category, ProductSize, Difficult} from '@/types'
 
@@ -634,7 +645,7 @@ export default {
     },
     fetchData() {
       this.listLoading = true
-      getList().then(response => {
+      getProductList().then(response => {
         this.list = response.data
         this.listLoading = false
       })

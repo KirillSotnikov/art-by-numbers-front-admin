@@ -77,6 +77,21 @@ export const constantRoutes = [
   },
 
   {
+    path: '/testimonials',
+    component: Layout,
+    name: 'Testimonials',
+    meta: { title: 'Testimonials', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'list',
+        name: 'List',
+        component: () => import('@/views/table/testimonials-list'),
+        meta: { title: 'Testimonials list', icon: 'table' }
+      },
+    ]
+  },
+
+  {
     path: '/form',
     component: Layout,
     children: [
