@@ -271,14 +271,14 @@
       <el-table-column align="center" label="Price" width="80">
         <template slot-scope="scope">
           <p class="word-bread">
-          {{ scope.row.price }}
+          {{ scope.row.price }}₴
           </p>
         </template>
       </el-table-column>
       <el-table-column align="center" label="Discount price" width="90">
         <template slot-scope="scope">
-          <p class="word-bread">
-            {{ scope.row.discountPrice }}
+          <p v-if="scope.row.discountPrice" class="word-bread">
+            {{ scope.row.discountPrice }}₴
           </p>
         </template>
       </el-table-column>
