@@ -347,3 +347,35 @@ export const addProduct = async (data) => {
     data: res.data
   }
 }
+
+export const editProduct = async (id, data) => {
+  const res = await request({
+    url: `/api/v1/products/${id}`,
+    method: 'put',
+    data,
+  })
+  return {
+    data: res.data
+  }
+}
+
+export const hideProduct = async (id) => {
+  const res = await request({
+    url: `/api/v1/products/${id}`,
+    method: 'delete',
+  })
+  return {
+    data: res.data
+  }
+}
+
+
+export const restoreProduct = async (id) => {
+  const res = await request({
+    url: `/api/v1/products/${id}/restore`,
+    method: 'put',
+  })
+  return {
+    data: res.data
+  }
+}

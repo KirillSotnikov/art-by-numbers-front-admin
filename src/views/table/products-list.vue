@@ -87,7 +87,8 @@
             multiple
             list-type="picture"
             accept="image/*"
-            :file-list="fileCreateList">
+            :file-list="fileCreateList"
+          >
             <el-button size="small" type="primary">Click to upload</el-button>
             <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 2Mb</div>
           </el-upload>
@@ -174,28 +175,18 @@
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Gallery" prop="gallery">
-          <div
-            class="flex-row"
-            v-for="(item, index) in (productToEdit ? productToEdit.gallery.images : [])"
-            :key="index"
-          >
-            <img
-              :src="item"
-              class="gallery-image"
-            >
-            <el-button type="danger" icon="el-icon-delete" circle></el-button>
-          </div>
-        </el-form-item>
-        <el-form-item label="New images" prop="gallery">
           <el-upload
             class="upload-demo"
+            :auto-upload="false"
+            :on-change="handleEditUpload"
             action="https://jsonplaceholder.typicode.com/posts/"
-            :on-preview="handleEditPreview"
             :on-remove="handleEditRemove"
             :before-remove="beforeEditRemove"
             multiple
+            list-type="picture"
             accept="image/*"
-            :file-list="fileEditList">
+            :file-list="fileEditList"
+          >
             <el-button size="small" type="primary">Click to upload</el-button>
             <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 2Mb</div>
           </el-upload>
@@ -241,10 +232,10 @@
       <el-table-column label="Name" width="300">
         <template slot-scope="scope">
           <p class="my-0 word-bread">
-            RU: {{ scope.row.name }}
+            RU: {{ scope.row.name.ru }}
           </p>
           <p class="my-0 word-bread">
-            UA: {{ scope.row.name }}
+            UA: {{ scope.row.name.ua }}
           </p>
         </template>
       </el-table-column>
@@ -319,7 +310,10 @@
       <el-table-column align="center" show-overflow-tooltip label="Description" width="200">
         <template slot-scope="scope">
           <p class="word-bread">
-            {{ scope.row.description }}
+            RU: {{ scope.row.description.ru }}
+          </p>
+          <p class="word-bread">
+            UA: {{ scope.row.description.ua }}
           </p>
         </template>
       </el-table-column>
@@ -334,6 +328,7 @@
               cancel-button-text='No, Thanks'
               icon="el-icon-info"
               icon-color="red"
+              @onConfirm="restoreProduct(scope.row.id)"
             >
               <el-button slot="reference" type="info" plain>Show</el-button>
             </el-popconfirm>
@@ -344,6 +339,7 @@
               cancel-button-text='No, Thanks'
               icon="el-icon-info"
               icon-color="red"
+              @onConfirm="hideProduct(scope.row.id)"
             >
               <el-button slot="reference" type="danger" plain>Hide</el-button>
             </el-popconfirm>
@@ -364,7 +360,7 @@
 </template>
 
 <script>
-import { getProductList } from '@/api/products'
+import { getProductList, addProduct, hideProduct, restoreProduct, editProduct } from '@/api/products'
 import FileUpload from 'vue-upload-component'
 import {productTypeLabels, categoryLabels, ProductType, Category, ProductSize, Difficult} from '@/types'
 import {uploadImage} from "@/api/image-upload";
@@ -494,18 +490,25 @@ export default {
         this.productToEdit = product;
         this.editForm = {
           articul: product.articul,
-          nameRu: product.name,
-          nameUa: product.name,
+          nameRu: product.name.ru,
+          nameUa: product.name.ua,
           type: product.type,
           category: product.category,
           size: product.size,
           difficult: product.difficult,
-          price: product.price,
-          discountPrice: product.discountPrice,
+          price: product.price.toString(),
+          discountPrice: product.discountPrice ? product.discountPrice.toString() : undefined,
           inSale: product.inSale ?? false,
-          descRu: product.description,
-          descUa: product.description,
+          descRu: product.description.ru,
+          descUa: product.description.ua,
         }
+        this.fileEditList = product.gallery.images.map((imageUrl) => {
+          const filename = imageUrl.replace(/^.*[\\\/]/, '');
+          return {
+            name: filename,
+            url: imageUrl,
+          }
+        })
         this.editDialogVisible = true;
       },
       immediate: true
@@ -555,11 +558,25 @@ export default {
       ]
       console.log('fileCreateList', this.fileCreateList);
     },
+    async handleEditUpload(file) {
+      const res = await uploadImage(file.raw);
+      const imageUrl = res.data.imageUrl
+      const filename = imageUrl.replace(/^.*[\\\/]/, '')
+      this.fileEditList = [
+        ...this.fileEditList,
+        {
+          name: filename,
+          url: imageUrl,
+        }
+      ]
+      console.log('fileEditList', this.fileEditList);
+    },
     beforeCreateRemove(file, fileList) {
       return this.$confirm(`Do you want to remove ${ file.name } ?`);
     },
     handleEditRemove(file, fileList) {
       console.log(file, fileList);
+      this.fileEditList = fileList;
     },
     handleEditPreview(file) {
       console.log(file);
@@ -567,10 +584,32 @@ export default {
     beforeEditRemove(file, fileList) {
       return this.$confirm(`Cancel the transfert of ${ file.name } ?`);
     },
-    submitCreateForm() {
-      this.$refs.createForm.validate((valid) => {
+    async submitCreateForm() {
+      this.$refs.createForm.validate(async (valid) => {
         if (valid) {
-          alert('submit!');
+          const dto = {
+            type: this.createForm.type,
+            articul: this.createForm.articul,
+            size: this.createForm.size,
+            difficult: this.createForm.difficult,
+            description: {
+              ua: this.createForm.descUa,
+              ru: this.createForm.descRu,
+            },
+            name: {
+              ua: this.createForm.nameUa,
+              ru: this.createForm.nameRu,
+            },
+            price: Number(this.createForm.price),
+            category: this.createForm.category,
+            inSale: this.createForm.inSale,
+            discountPrice: this.createForm.discountPrice ? Number(this.createForm.discountPrice) : undefined,
+            gallery: {
+              images: this.fileCreateList.map((item) => item.url),
+            }
+          };
+          const res = await addProduct(dto);
+          this.list = [res.data, ...this.list]
           this.closeCreateDialog();
         } else {
           console.log('error submit!!');
@@ -578,14 +617,49 @@ export default {
         }
       });
     },
+    async hideProduct(id) {
+      await hideProduct(id);
+      this.list = this.list.map((item) => item.id === id ? { ...item, deletedAt: Date.now() } : item)
+    },
+    async restoreProduct(id) {
+      await restoreProduct(id);
+      this.list = this.list.map((item) => item.id === id ? { ...item, deletedAt: null } : item)
+    },
     resetCreateForm() {
       this.$refs.createForm.resetFields();
       this.closeCreateDialog();
     },
-    submitEditForm() {
-      this.$refs.editForm.validate((valid) => {
+    async submitEditForm() {
+      this.editForm = {
+        ...this.editForm,
+        price: Number(this.editForm.price)
+      }
+      console.log(321321, this.editForm);
+      this.$refs.editForm.validate(async (valid) => {
         if (valid) {
-          alert('submit!');
+          const dto = {
+            type: this.editForm.type,
+            articul: this.editForm.articul,
+            size: this.editForm.size,
+            difficult: this.editForm.difficult,
+            description: {
+              ua: this.editForm.descUa,
+              ru: this.editForm.descRu,
+            },
+            name: {
+              ua: this.editForm.nameUa,
+              ru: this.editForm.nameRu,
+            },
+            price: this.editForm.price.toString(),
+            category: this.editForm.category,
+            inSale: this.editForm.inSale,
+            discountPrice: this.editForm.discountPrice ? this.editForm.discountPrice.toString() : undefined,
+            gallery: {
+              images: this.fileEditList.map((item) => item.url),
+            }
+          };
+          const res = await editProduct(this.productToEdit.id, dto);
+          this.list = this.list.map((item) => item.id === this.productToEdit.id ? res.data : item)
           this.closeEditDialog();
         } else {
           console.log('error submit!!');
