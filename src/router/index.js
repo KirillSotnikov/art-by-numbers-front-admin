@@ -92,6 +92,27 @@ export const constantRoutes = [
   },
 
   {
+    path: '/client-works',
+    component: Layout,
+    name: 'Client works',
+    meta: { title: 'Client works', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'list',
+        name: 'List',
+        component: () => import('@/views/table/client-works-list'),
+        meta: { title: 'Client works list', icon: 'table' }
+      },
+      {
+        path: 'list?create=true',
+        name: 'Create',
+        component: () => import('@/views/table/client-works-list'),
+        meta: { title: 'Create client work', icon: 'tree' }
+      }
+    ]
+  },
+
+  {
     path: '/form',
     component: Layout,
     children: [

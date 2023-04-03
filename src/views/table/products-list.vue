@@ -193,6 +193,7 @@
             :on-remove="handleEditRemove"
             :before-remove="beforeEditRemove"
             multiple
+            accept="image/*"
             :file-list="fileEditList">
             <el-button size="small" type="primary">Click to upload</el-button>
             <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 2Mb</div>
