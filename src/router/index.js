@@ -6,6 +6,8 @@ Vue.use(Router)
 /* Layout */
 import Layout from '@/layout'
 
+const marketLink = process.env.VUE_APP_MARKET_LINK;
+
 /**
  * Note: sub-menu only appear when route children.length >= 1
  * Detail see: https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -127,16 +129,16 @@ export const constantRoutes = [
     ]
   },
 
-  {
+  ...(marketLink ? [{
     path: 'external-link',
     component: Layout,
     children: [
       {
-        path: 'https://panjiachen.github.io/vue-element-admin-site/#/',
+        path: process.env.VUE_APP_MARKET_LINK,
         meta: { title: 'To market', icon: 'link' }
       }
     ]
-  },
+  }] : []),
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }

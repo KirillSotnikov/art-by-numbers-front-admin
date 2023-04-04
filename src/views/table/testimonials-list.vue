@@ -28,11 +28,11 @@
       <el-table-column align="center" label="Product" width="100" fixed>
         <template slot-scope="scope">
           <a
-            :href="`http://localhost:3000/product/${scope.row.product.id}`"
+            :href="`${marketLink}/product/${scope.row.product.id}`"
             class="word-bread"
             target="_blank"
           >
-            {{ scope.row.product.name }}
+            {{ scope.row.product.name.ua }}
           </a>
         </template>
       </el-table-column>
@@ -79,6 +79,7 @@
               cancel-button-text='No, Thanks'
               icon="el-icon-info"
               icon-color="red"
+              @onConfirm="restoreTestimonial(scope.row.id)"
             >
               <el-button slot="reference" type="info" plain>Show</el-button>
             </el-popconfirm>
@@ -89,6 +90,7 @@
               cancel-button-text='No, Thanks'
               icon="el-icon-info"
               icon-color="red"
+              @onConfirm="hideTestimonial(scope.row.id)"
             >
               <el-button slot="reference" type="danger" plain>Hide</el-button>
             </el-popconfirm>
@@ -109,7 +111,7 @@
 </template>
 
 <script>
-import { getTestionialsList } from '@/api/testimonials'
+import { getTestionialsList, restoreTestimonial, hideTestimonial } from '@/api/testimonials'
 
 export default {
   data() {
@@ -158,6 +160,11 @@ export default {
       },
     },
   },
+  computed: {
+    marketLink() {
+      return process.env.VUE_APP_MARKET_LINK;
+    }
+  },
   methods: {
     getDisplayData() {
       if (this.list) {
@@ -195,6 +202,14 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val;
+    },
+    async hideTestimonial(id) {
+      await hideTestimonial(id)
+      this.list = this.list.map((item) => item.id === id ? { ...item, deletedAt: Date.now() } : item)
+    },
+    async restoreTestimonial(id) {
+      await restoreTestimonial(id)
+      this.list = this.list.map((item) => item.id === id ? { ...item, deletedAt: null } : item)
     },
   }
 }

@@ -22,9 +22,13 @@
             :on-preview="handleCreatePreview"
             :on-remove="handleCreateRemove"
             :before-remove="beforeCreateRemove"
-            :limit="1"
+            multiple
+            list-type="picture"
             accept="image/*"
-            :file-list="fileCreateList">
+            :on-exceed="handleCreateExceed"
+            :file-list="fileCreateList"
+            :limit="1"
+          >
             <el-button size="small" type="primary">Click to upload</el-button>
             <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 2Mb</div>
           </el-upload>
@@ -50,23 +54,22 @@
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Image" prop="gallery">
-          <div class="flex-row">
-            <img
-              :src="workToEdit ? workToEdit.image : ''"
-              class="gallery-image"
-            >
-            <el-button type="danger" icon="el-icon-delete" circle></el-button>
-          </div>
           <el-upload
             class="upload-demo"
+            :auto-upload="false"
+            :on-change="handleEditUpload"
             action="https://jsonplaceholder.typicode.com/posts/"
             :on-preview="handleEditPreview"
             :on-remove="handleEditRemove"
             :before-remove="beforeEditRemove"
-            :limit="1"
+            multiple
+            list-type="picture"
             accept="image/*"
+            :on-exceed="handleCreateExceed"
+            :file-list="fileEditList"
+            :limit="1"
           >
-            <el-button size="small" type="primary">Click to upload and change</el-button>
+            <el-button size="small" type="primary">Click to upload</el-button>
             <div slot="tip" class="el-upload__tip">jpg/png files with a size less than 2Mb</div>
           </el-upload>
         </el-form-item>
@@ -139,6 +142,7 @@
               cancel-button-text='No, Thanks'
               icon="el-icon-info"
               icon-color="red"
+              @onConfirm="restoreWork(scope.row.id)"
             >
               <el-button slot="reference" type="info" plain>Show</el-button>
             </el-popconfirm>
@@ -149,6 +153,7 @@
               cancel-button-text='No, Thanks'
               icon="el-icon-info"
               icon-color="red"
+              @onConfirm="hideWork(scope.row.id)"
             >
               <el-button slot="reference" type="danger" plain>Hide</el-button>
             </el-popconfirm>
@@ -169,8 +174,9 @@
 </template>
 
 <script>
-import { getClientWorksList } from '@/api/client-works'
+import { getClientWorksList, addClientWork, editClientWork, removeClientWork, restoreClientWork } from '@/api/client-works'
 import FileUpload from 'vue-upload-component'
+import {uploadImage} from "@/api/image-upload";
 
 const initialForm = {
   nickname: '',
@@ -204,9 +210,7 @@ export default {
         nickname: [
           { required: true, message: 'Please input nickname', trigger: 'blur' },
         ],
-        link: [
-          { required: true, message: 'Please input link', trigger: 'blur' },
-        ],
+        link: [],
       },
       createForm: initialForm,
       editForm: initialForm,
@@ -239,8 +243,13 @@ export default {
         this.workToEdit = work;
         this.editForm = {
           nickname: work.nickname,
-          link: work.link,
+          link: work.link ?? '',
         }
+        const filename = work.image.replace(/^.*[\\\/]/, '');
+        this.fileEditList = [{
+          name: filename,
+          url: work.image,
+        }]
         this.editDialogVisible = true;
       },
       immediate: true
@@ -270,24 +279,43 @@ export default {
     },
   },
   methods: {
+    async hideWork(id) {
+      await removeClientWork(id);
+      this.list = this.list.map((item) => item.id === id ? { ...item, deletedAt: Date.now() } : item)
+    },
+    async restoreWork(id) {
+      await restoreClientWork(id);
+      this.list = this.list.map((item) => item.id === id ? { ...item, deletedAt: null } : item)
+    },
     handleCreateRemove(file, fileList) {
       console.log(file, fileList);
+      this.fileCreateList = fileList;
     },
     handleCreatePreview(file) {
       console.log('handleCreatePreview', file);
     },
-    handleCreateUpload(file) {
-      const limit = 1024 * 1024 * 2;
-      if (file.size > limit) {
-        this.$message.error('Image size is larger than 2Mb');
-      }
-      console.log('handleCreateUpload', file);
+    async handleCreateUpload(file) {
+      const res = await uploadImage(file.raw);
+      const imageUrl = res.data.imageUrl
+      const filename = imageUrl.replace(/^.*[\\\/]/, '')
+      this.fileCreateList = [
+        ...this.fileCreateList,
+        {
+          name: filename,
+          url: imageUrl,
+        }
+      ]
+      console.log('fileCreateList', this.fileCreateList);
     },
     beforeCreateRemove(file, fileList) {
       return this.$confirm(`Do you want to remove ${ file.name } ?`);
     },
+    handleCreateExceed() {
+      this.$message.warning('You can add only 1 file');
+    },
     handleEditRemove(file, fileList) {
       console.log(file, fileList);
+      this.fileEditList = fileList;
     },
     handleEditPreview(file) {
       console.log(file);
@@ -295,10 +323,30 @@ export default {
     beforeEditRemove(file, fileList) {
       return this.$confirm(`Cancel the transfert of ${ file.name } ?`);
     },
-    submitCreateForm() {
-      this.$refs.createForm.validate((valid) => {
+    async handleEditUpload(file) {
+      const res = await uploadImage(file.raw);
+      const imageUrl = res.data.imageUrl
+      const filename = imageUrl.replace(/^.*[\\\/]/, '')
+      this.fileEditList = [
+        ...this.fileEditList,
+        {
+          name: filename,
+          url: imageUrl,
+        }
+      ]
+      console.log('fileEditList', this.fileEditList);
+    },
+    async submitCreateForm() {
+      this.$refs.createForm.validate(async (valid) => {
         if (valid) {
-          alert('submit!');
+          const dto = {
+            nickname: this.createForm.nickname,
+            link: this.createForm.link.length ? this.createForm.link : undefined,
+            image: this.fileCreateList[0].url
+          }
+          console.log('dto', dto);
+          const res = await addClientWork(dto);
+          this.list = [res.data, ...this.list]
           this.closeCreateDialog();
         } else {
           console.log('error submit!!');
@@ -310,10 +358,17 @@ export default {
       this.$refs.createForm.resetFields();
       this.closeCreateDialog();
     },
-    submitEditForm() {
-      this.$refs.editForm.validate((valid) => {
+    async submitEditForm() {
+      this.$refs.editForm.validate(async (valid) => {
         if (valid) {
-          alert('submit!');
+          const dto = {
+            nickname: this.editForm.nickname,
+            link: this.editForm.link.length ? this.editForm.link : undefined,
+            image: this.fileEditList[0].url
+          }
+          console.log('dto111', dto);
+          const res = await editClientWork(this.workToEdit.id, dto);
+          this.list = this.list.map((item) => item.id === this.workToEdit.id ? res.data : item)
           this.closeEditDialog();
         } else {
           console.log('error submit!!');

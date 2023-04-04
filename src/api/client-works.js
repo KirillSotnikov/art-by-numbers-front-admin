@@ -1,137 +1,40 @@
 import request from '@/utils/request'
 
-const mockWorks = [
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: '123k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-    deletedAt: Date.now(),
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-  {
-    id: 'id',
-    image: 'https://mk.holst.kz/image/catalog/010.jpg',
-    nickname: 'k_solovchuk',
-    link: 'https://www.instagram.com/_r_a_i_n_b_o_w__kirill/',
-  },
-]
-
 export const getClientWorksList = async (params) => {
-  // return request({
-  //   url: '/vue-admin-template/table/list',
-  //   method: 'get',
-  //   params
-  // })
-  await new Promise((r) => { setTimeout(r, 200) });
-  return {
-    data: mockWorks
-  }
+  return request({
+    url: '/api/v1/client-works',
+    method: 'get',
+  })
+}
+
+export const addClientWork = async (data) => {
+  return request({
+    url: '/api/v1/client-works',
+    method: 'post',
+    data,
+  })
+}
+
+export const editClientWork = async (id, data) => {
+  return request({
+    url: `/api/v1/client-works/${id}`,
+    method: 'put',
+    data,
+  })
+}
+
+
+export const removeClientWork = async (id) => {
+  return request({
+    url: `/api/v1/client-works/${id}`,
+    method: 'delete',
+  })
+}
+
+
+export const restoreClientWork = async (id) => {
+  return request({
+    url: `/api/v1/client-works/${id}/restore`,
+    method: 'put',
+  })
 }
