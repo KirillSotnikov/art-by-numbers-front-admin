@@ -10,7 +10,7 @@
         <el-input
           v-model="search"
           size="small"
-          placeholder="Search (name)"
+          placeholder="Search (order number)"
         />
       </div>
       <div></div>
@@ -25,9 +25,9 @@
       highlight-current-row
       height="70vh"
     >
-      <el-table-column align="center" label="Order ID" width="100" fixed>
+      <el-table-column align="center" label="Order Number" width="140" fixed>
         <template slot-scope="scope">
-          {{ scope.row.orderNumber }}
+          {{ scope.row.orderNumber | orderNumberFilter }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="Status" width="120">
@@ -45,13 +45,13 @@
           <el-popover
             placement="bottom"
             title="Delivery details"
-            width="300"
+            width="440"
             trigger="click"
             content="this is content, this is content, this is content"
           >
             <el-table :data="[scope.row.deliveryData]">
-              <el-table-column width="100" property="city" label="City"></el-table-column>
-              <el-table-column width="200" property="postOfficeNumber" label="Post office number"></el-table-column>
+              <el-table-column width="100" property="city.ua" label="City"></el-table-column>
+              <el-table-column width="300" property="department.ua" label="Відділення"></el-table-column>
             </el-table>
             <el-button slot="reference">
               {{ scope.row.deliveryType | deliveryTypeFilter }}
@@ -59,9 +59,42 @@
           </el-popover>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Payment type" width="150">
+      <el-table-column align="center" label="CRM Data" width="180">
         <template slot-scope="scope">
-          {{ scope.row.paymentType | paymentTypeFilter }}
+          <el-popover
+            placement="bottom"
+            title="CRM data"
+            width="240"
+            trigger="click"
+            content="this is content, this is content, this is content"
+          >
+            <el-table :data="[scope.row.crmOrderData]">
+              <el-table-column width="80" property="id" label="ID"></el-table-column>
+              <el-table-column width="120" property="status" label="Status"></el-table-column>
+            </el-table>
+            <el-button slot="reference">
+              CRM order details
+            </el-button>
+          </el-popover>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="Payment type" width="180">
+        <template slot-scope="scope">
+          <el-popover
+            placement="bottom"
+            title="Payment data"
+            width="300"
+            trigger="click"
+            content="this is content, this is content, this is content"
+          >
+            <el-table :data="[scope.row.paymentData]">
+              <el-table-column width="160" property="id" label="ID"></el-table-column>
+              <el-table-column width="100" property="status" label="Status"></el-table-column>
+            </el-table>
+            <el-button slot="reference">
+              {{ scope.row.paymentType | paymentTypeFilter }}
+            </el-button>
+          </el-popover>
         </template>
       </el-table-column>
       <el-table-column align="center" label="Products" width="150">
@@ -84,8 +117,8 @@
           >
             <el-table :data="scope.row.products">
               <el-table-column width="80" property="amount" label="Amount"></el-table-column>
-              <el-table-column width="100" property="item.articul" label="Articul"></el-table-column>
-              <el-table-column width="200" property="item.name" label="Name"></el-table-column>
+              <el-table-column width="100" property="product.articul" label="Articul"></el-table-column>
+              <el-table-column width="200" property="product.name.ua" label="Name"></el-table-column>
             </el-table>
             <el-button slot="reference">
               {{ scope.row.products.length }} products
@@ -143,7 +176,7 @@
 
 <script>
 import { getOrdersList } from '@/api/orders'
-import { orderStatusLabels, orderDeliveryTypeLabels, paymentTypeLabels } from '@/types'
+import {orderStatusLabels, orderDeliveryTypeLabels, paymentTypeLabels, orderPaymentDataLabels} from '@/types'
 
 export default {
   data() {
@@ -169,11 +202,18 @@ export default {
     statusFilter(val) {
       return orderStatusLabels[val];
     },
+    orderNumberFilter(val) {
+      const joy = val.match(/.{1,4}/g);
+      return joy.join(' ');
+    },
     deliveryTypeFilter(val) {
       return orderDeliveryTypeLabels[val];
     },
     paymentTypeFilter(val) {
       return paymentTypeLabels[val];
+    },
+    paymentDataFilter(val) {
+      return orderPaymentDataLabels[val];
     },
   },
   watch: {
@@ -206,7 +246,7 @@ export default {
       if (this.list) {
         const filteredSearch = [...this.list].filter((item) => {
           return !this.search
-            || item.name.toLowerCase().includes(this.search.toLowerCase())
+            || item.orderNumber.toLowerCase().includes(this.search.replace(/\s/g, '').toLowerCase())
         });
         const filteredHidden = filteredSearch.filter((item) => {
           return this.showHidden ? item : !item.deletedAt;

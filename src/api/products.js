@@ -329,7 +329,7 @@ const mockCards = [
 
 export const getProductList = async () => {
   const res = await request({
-    url: '/api/v1/products',
+    url: '/api/admin/products',
     method: 'get',
   })
   return {
@@ -339,7 +339,7 @@ export const getProductList = async () => {
 
 export const addProduct = async (data) => {
   const res = await request({
-    url: '/api/v1/products',
+    url: '/api/admin/products',
     method: 'post',
     data,
   })
@@ -350,7 +350,7 @@ export const addProduct = async (data) => {
 
 export const editProduct = async (id, data) => {
   const res = await request({
-    url: `/api/v1/products/${id}`,
+    url: `/api/admin/products/${id}`,
     method: 'put',
     data,
   })
@@ -361,7 +361,7 @@ export const editProduct = async (id, data) => {
 
 export const hideProduct = async (id) => {
   const res = await request({
-    url: `/api/v1/products/${id}`,
+    url: `/api/admin/products/${id}`,
     method: 'delete',
   })
   return {
@@ -372,7 +372,7 @@ export const hideProduct = async (id) => {
 
 export const restoreProduct = async (id) => {
   const res = await request({
-    url: `/api/v1/products/${id}/restore`,
+    url: `/api/admin/products/${id}/restore`,
     method: 'put',
   })
   return {

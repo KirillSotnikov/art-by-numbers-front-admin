@@ -3,7 +3,7 @@ import request from '@/utils/request'
 export function login(data) {
   console.log('data', data);
   return request({
-    url: '/api/v1/auth/login',
+    url: '/api/admin/auth/login',
     method: 'post',
     data
   })

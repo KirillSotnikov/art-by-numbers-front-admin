@@ -124,3 +124,13 @@ export const orderDeliveryTypeLabels = {
   [DeliveryType.POST]: 'Відділення НП',
   [DeliveryType.POSTOMAT]: 'Поштомат НП',
 }
+
+export const PaymentStatus = Object.freeze({
+  REQUESTED: 'requested',
+  RECEIVED: 'received',
+})
+
+export const orderPaymentDataLabels = {
+  [PaymentStatus.REQUESTED]: 'Запрошено',
+  [PaymentStatus.RECEIVED]: 'Отримано',
+}

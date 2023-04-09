@@ -9,6 +9,9 @@
         <el-form-item label="Articul" prop="articul">
           <el-input v-model="createForm.articul"></el-input>
         </el-form-item>
+        <el-form-item label="CRM product ID" prop="crmProductId">
+          <el-input v-model="createForm.crmProductId"></el-input>
+        </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Name (UA)" prop="nameUa">
           <el-input v-model="createForm.nameUa"></el-input>
@@ -107,6 +110,9 @@
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="Articul" prop="articul">
           <el-input v-model="editForm.articul"></el-input>
+        </el-form-item>
+        <el-form-item label="CRM product ID" prop="crmProductId">
+          <el-input v-model="editForm.crmProductId"></el-input>
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Name (UA)" prop="nameUa">
@@ -260,6 +266,13 @@
           </p>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="CRM ID" width="90">
+        <template slot-scope="scope">
+          <p class="word-bread">
+          {{ scope.row.crmProductId }}
+          </p>
+        </template>
+      </el-table-column>
       <el-table-column align="center" label="Price" width="80">
         <template slot-scope="scope">
           <p class="word-bread">
@@ -368,6 +381,7 @@ import {uploadImage} from "@/api/image-upload";
 const initialForm = {
   nameRu: '',
   nameUa: '',
+  crmProductId: '',
   articul: '',
   type: ProductType.patriotic,
   category: Category.picture_by_numbers,
@@ -490,6 +504,7 @@ export default {
         this.productToEdit = product;
         this.editForm = {
           articul: product.articul,
+          crmProductId: product.crmProductId,
           nameRu: product.name.ru,
           nameUa: product.name.ua,
           type: product.type,
@@ -590,6 +605,7 @@ export default {
           const dto = {
             type: this.createForm.type,
             articul: this.createForm.articul,
+            crmProductId: this.createForm.crmProductId,
             size: this.createForm.size,
             difficult: this.createForm.difficult,
             description: {
@@ -640,6 +656,7 @@ export default {
           const dto = {
             type: this.editForm.type,
             articul: this.editForm.articul,
+            crmProductId: this.editForm.crmProductId,
             size: this.editForm.size,
             difficult: this.editForm.difficult,
             description: {
