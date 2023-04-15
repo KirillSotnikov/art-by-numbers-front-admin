@@ -100,6 +100,7 @@ export const OrderStatus =  Object.freeze({
   REQUESTED: 'requested',
   PROCESSED: 'processed',
   DELIVERED: 'delivered',
+  SENT: 'sent',
   RECEIVED: 'received',
   CANCELED: 'canceled',
 })
@@ -115,6 +116,7 @@ export const orderStatusLabels = {
   [OrderStatus.REQUESTED]: 'Прийнято',
   [OrderStatus.PROCESSED]: 'У процессі',
   [OrderStatus.DELIVERED]: 'Доставлено',
+  [OrderStatus.SENT]: 'Відправлено',
   [OrderStatus.RECEIVED]: 'Забрано',
   [OrderStatus.CANCELED]: 'Відмінено',
 }

@@ -213,7 +213,7 @@
         <el-input
           v-model="search"
           size="small"
-          placeholder="Search (name, articul)"
+          placeholder="Search (name, articul, crm ID)"
         />
       </div>
       <el-button @click="openCreateDialog" type="success" plain>Create new product</el-button>
@@ -723,6 +723,7 @@ export default {
           return !this.search
             || item.name.toLowerCase().includes(this.search.toLowerCase())
             || item.articul.toLowerCase().includes(this.search.toLowerCase())
+            || item.crmProductId.toLowerCase().includes(this.search.toLowerCase())
         });
         const filteredHidden = filteredSearch.filter((item) => {
           return this.showHidden ? item : !item.deletedAt;

@@ -97,3 +97,11 @@ Modern browsers and Internet Explorer 10+.
 [MIT](https://github.com/PanJiaChen/vue-admin-template/blob/master/LICENSE) license.
 
 Copyright (c) 2017-present PanJiaChen
+
+
+### `docker`
+```angular2html
+- docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+- docker build -t sotnikov2508/front-admin-art-by-numbers:1.0.0 .
+- docker push sotnikov2508/front-admin-art-by-numbers:1.0.0
+```
