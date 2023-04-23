@@ -499,7 +499,6 @@ export default {
           if (!this.list) return;
         }
         const product = this.list.find((item) => item.id === val);
-        console.log(product);
         if (!product) return;
         this.productToEdit = product;
         this.editForm = {
@@ -554,7 +553,6 @@ export default {
   },
   methods: {
     handleCreateRemove(file, fileList) {
-      console.log(file, fileList);
       this.fileCreateList = fileList;
     },
     handleCreatePreview(file) {
@@ -571,7 +569,6 @@ export default {
           url: imageUrl,
         }
       ]
-      console.log('fileCreateList', this.fileCreateList);
     },
     async handleEditUpload(file) {
       const res = await uploadImage(file.raw);
@@ -584,13 +581,11 @@ export default {
           url: imageUrl,
         }
       ]
-      console.log('fileEditList', this.fileEditList);
     },
     beforeCreateRemove(file, fileList) {
       return this.$confirm(`Do you want to remove ${ file.name } ?`);
     },
     handleEditRemove(file, fileList) {
-      console.log(file, fileList);
       this.fileEditList = fileList;
     },
     handleEditPreview(file) {
@@ -650,7 +645,6 @@ export default {
         ...this.editForm,
         price: Number(this.editForm.price)
       }
-      console.log(321321, this.editForm);
       this.$refs.editForm.validate(async (valid) => {
         if (valid) {
           const dto = {
@@ -700,6 +694,8 @@ export default {
         path: this.$route.path,
         query: newQueryParams,
       })
+      this.createForm = initialForm;
+      this.fileCreateList = [];
     },
     openEditDialog(id) {
       this.$router.push({
@@ -716,12 +712,15 @@ export default {
         path: this.$route.path,
         query: newQueryParams,
       })
+      this.editForm = initialForm;
+      this.fileEditList = [];
     },
     getDisplayData() {
       if (this.list) {
         const filteredSearch = [...this.list].filter((item) => {
           return !this.search
-            || item.name.toLowerCase().includes(this.search.toLowerCase())
+            || item.name.ua.toLowerCase().includes(this.search.toLowerCase())
+            || item.name.ru.toLowerCase().includes(this.search.toLowerCase())
             || item.articul.toLowerCase().includes(this.search.toLowerCase())
             || item.crmProductId.toLowerCase().includes(this.search.toLowerCase())
         });

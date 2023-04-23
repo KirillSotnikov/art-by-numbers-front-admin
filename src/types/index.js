@@ -1,7 +1,6 @@
 export const ProductType = Object.freeze({
   patriotic: 'patriotic',
   golden_picture: 'golden-picture',
-  premium: 'premium',
   people: 'people',
   animals: 'animals',
   flowers_and_kitchen: 'flowers-and-kitchen',
@@ -26,7 +25,6 @@ export const ProductType = Object.freeze({
 export const productTypeLabels = {
   [ProductType.patriotic]: 'Патріотичні сюжети',
   [ProductType.golden_picture]: 'Картини в золоті',
-  [ProductType.premium]: 'Преміум набори',
   [ProductType.people]: 'Люди на картині',
   [ProductType.animals]: 'Тварини',
   [ProductType.flowers_and_kitchen]: 'Квіти та кухонні',

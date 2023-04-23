@@ -1,11 +1,12 @@
 <template>
   <div class="app-container">
     <div class="flex-row justify-between">
-      <div class="flex-row">
-        <el-checkbox v-model="showHidden">
-          Show hidden
-        </el-checkbox>
-      </div>
+<!--      <div class="flex-row">-->
+<!--        <el-checkbox v-model="showHidden">-->
+<!--          Show hidden-->
+<!--        </el-checkbox>-->
+<!--      </div>-->
+      <div></div>
       <div>
         <el-input
           v-model="search"
@@ -271,7 +272,6 @@ export default {
     fetchData() {
       this.listLoading = true
       getOrdersList().then(response => {
-        console.log(response.data);
         this.list = response.data
         this.listLoading = false
       })

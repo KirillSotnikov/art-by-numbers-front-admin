@@ -195,7 +195,6 @@ export default {
     fetchData() {
       this.listLoading = true
       getTestionialsList().then(response => {
-        console.log(response.data);
         this.list = response.data
         this.listLoading = false
       })

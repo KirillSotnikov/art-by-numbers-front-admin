@@ -238,7 +238,6 @@ export default {
           if (!this.list) return;
         }
         const work = this.list.find((item) => item.id === val);
-        console.log(work);
         if (!work) return;
         this.workToEdit = work;
         this.editForm = {
@@ -288,7 +287,6 @@ export default {
       this.list = this.list.map((item) => item.id === id ? { ...item, deletedAt: null } : item)
     },
     handleCreateRemove(file, fileList) {
-      console.log(file, fileList);
       this.fileCreateList = fileList;
     },
     handleCreatePreview(file) {
@@ -305,7 +303,6 @@ export default {
           url: imageUrl,
         }
       ]
-      console.log('fileCreateList', this.fileCreateList);
     },
     beforeCreateRemove(file, fileList) {
       return this.$confirm(`Do you want to remove ${ file.name } ?`);
@@ -314,7 +311,6 @@ export default {
       this.$message.warning('You can add only 1 file');
     },
     handleEditRemove(file, fileList) {
-      console.log(file, fileList);
       this.fileEditList = fileList;
     },
     handleEditPreview(file) {
@@ -334,7 +330,6 @@ export default {
           url: imageUrl,
         }
       ]
-      console.log('fileEditList', this.fileEditList);
     },
     async submitCreateForm() {
       this.$refs.createForm.validate(async (valid) => {
@@ -344,7 +339,6 @@ export default {
             link: this.createForm.link.length ? this.createForm.link : undefined,
             image: this.fileCreateList[0].url
           }
-          console.log('dto', dto);
           const res = await addClientWork(dto);
           this.list = [res.data, ...this.list]
           this.closeCreateDialog();
@@ -366,7 +360,6 @@ export default {
             link: this.editForm.link.length ? this.editForm.link : undefined,
             image: this.fileEditList[0].url
           }
-          console.log('dto111', dto);
           const res = await editClientWork(this.workToEdit.id, dto);
           this.list = this.list.map((item) => item.id === this.workToEdit.id ? res.data : item)
           this.closeEditDialog();
@@ -392,6 +385,8 @@ export default {
         path: this.$route.path,
         query: newQueryParams,
       })
+      this.createForm = initialForm;
+      this.fileCreateList = [];
     },
     openEditDialog(id) {
       this.$router.push({
@@ -408,6 +403,8 @@ export default {
         path: this.$route.path,
         query: newQueryParams,
       })
+      this.editForm = initialForm;
+      this.fileEditList = [];
     },
     getDisplayData() {
       if (this.list) {
