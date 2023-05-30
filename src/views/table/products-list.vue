@@ -60,8 +60,8 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="In sale" prop="inSale">
-          <el-switch v-model="createForm.inSale"></el-switch>
+        <el-form-item label="Label" prop="labelEnabled">
+          <el-switch v-model="createForm.labelEnabled"></el-switch>
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Price" prop="price">
@@ -109,10 +109,16 @@
     >
       <el-form :model="editForm" :rules="rules" ref="editForm" label-width="140px" class="demo-ruleForm">
         <el-form-item label="Articul" prop="articul">
-          <el-input v-model="editForm.articul"></el-input>
+          <el-input disabled v-model="editForm.articul"></el-input>
         </el-form-item>
         <el-form-item label="CRM product ID" prop="crmProductId">
-          <el-input v-model="editForm.crmProductId"></el-input>
+          <el-input disabled v-model="editForm.crmProductId"></el-input>
+        </el-form-item>
+        <el-form-item label="CRM name" prop="crmName">
+          <el-input disabled v-model="editForm.crmName"></el-input>
+        </el-form-item>
+        <el-form-item label="CRM description" prop="crmDescription">
+          <el-input disabled v-model="editForm.crmDescription"></el-input>
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Name (UA)" prop="nameUa">
@@ -162,15 +168,33 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="In sale" prop="inSale">
-          <el-switch v-model="editForm.inSale"></el-switch>
+        <el-form-item label="Label" prop="labelEnabled">
+          <el-switch v-model="editForm.labelEnabled"></el-switch>
+        </el-form-item>
+        <el-form-item v-if="editForm.labelEnabled" label="Label type" prop="labelData.type">
+          <el-select v-model="editForm.labelData.type" placeholder="labelData type">
+            <el-option
+              v-for="(item, index) in Object.values(labelTypeEnum)"
+              :key="index"
+              :label="item | labelTypeFilter"
+              :value="item"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="editForm.labelEnabled && editForm.labelData.type === labelTypeEnum.SALE" label="Sale untill" prop="labelData.until">
+          <el-date-picker
+            :picker-options="datePickerOptions"
+            v-model="editForm.labelData.until"
+            type="datetime"
+            placeholder="Select date and time">
+          </el-date-picker>
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Price" prop="price">
-          <el-input min="0" v-model="editForm.price" type="number"></el-input>
+          <el-input min="0" v-model.number="editForm.price" type="number"></el-input>
         </el-form-item>
         <el-form-item label="Discount" prop="discountPrice">
-          <el-input min="0" v-model="editForm.discountPrice" type="number"></el-input>
+          <el-input min="0" v-model.number="editForm.discountPrice" type="number"></el-input>
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="Description (UA)" prop="descUa">
@@ -216,7 +240,10 @@
           placeholder="Search (name, articul, crm ID)"
         />
       </div>
-      <el-button @click="openCreateDialog" type="success" plain>Create new product</el-button>
+      <div class="flex-row">
+        <el-button @click="forceSrcSync" type="plain" plain>Force CRM sync</el-button>
+        <!--      <el-button @click="openCreateDialog" type="success" plain>Create new product</el-button>-->
+      </div>
     </div>
     <el-divider></el-divider>
     <el-table
@@ -294,11 +321,14 @@
           </p>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="Is in sale" width="100">
+      <el-table-column align="center" label="Label" width="100">
         <template slot-scope="scope">
-          <el-checkbox v-model="scope.row.inSale" disabled>
-            {{scope.row.inSale ? 'Yes' : 'No'}}
-          </el-checkbox>
+          <p v-if="scope.row.labelData" class="word-bread">
+            {{ scope.row.labelData.type | labelTypeFilter }}
+          </p>
+          <p v-if="scope.row.labelData && scope.row.labelData.type === labelTypeEnum.SALE" class="word-bread">
+            {{ scope.row.labelData.until | labelUntilFilter }}
+          </p>
         </template>
       </el-table-column>
       <el-table-column align="center" label="Is hidden" width="100">
@@ -373,15 +403,26 @@
 </template>
 
 <script>
-import { getProductList, addProduct, hideProduct, restoreProduct, editProduct } from '@/api/products'
+import { getProductList, addProduct, hideProduct, restoreProduct, editProduct, crmSync } from '@/api/products'
 import FileUpload from 'vue-upload-component'
-import {productTypeLabels, categoryLabels, ProductType, Category, ProductSize, Difficult} from '@/types'
+import {
+  productTypeLabels,
+  categoryLabels,
+  ProductType,
+  Category,
+  ProductSize,
+  Difficult,
+  labelTypeLabels, LabelType
+} from '@/types'
 import {uploadImage} from "@/api/image-upload";
+
 
 const initialForm = {
   nameRu: '',
   nameUa: '',
   crmProductId: '',
+  crmName: '',
+  crmDescription: '',
   articul: '',
   type: ProductType.patriotic,
   category: Category.picture_by_numbers,
@@ -389,9 +430,13 @@ const initialForm = {
   difficult: Difficult.ONE,
   price: 0,
   discountPrice: undefined,
-  inSale: false,
+  labelEnabled: false,
   descRu: '',
-  descUa: ''
+  descUa: '',
+  labelData: {
+    type: LabelType.NEW,
+    until: Date.now() + 60 * 60 * 1000,
+  },
 }
 
 export default {
@@ -399,6 +444,12 @@ export default {
     FileUpload
   },
   filters: {
+    labelTypeFilter(labelType) {
+      return labelTypeLabels[labelType];
+    },
+    labelUntilFilter(until) {
+      return new Date(until).toLocaleString();
+    },
     productTypeFilter(type) {
       return productTypeLabels[type]
     },
@@ -416,6 +467,11 @@ export default {
   },
   data() {
     return {
+      datePickerOptions: {
+        disabledDate (date) {
+          return date < new Date()
+        }
+      },
       list: null,
       listLoading: true,
       displayList: null,
@@ -429,6 +485,7 @@ export default {
       categoryEnum: Category,
       sizeEnum: ProductSize,
       difficultEnum: Difficult,
+      labelTypeEnum: LabelType,
       fileCreateList: [],
       fileEditList: [],
       // fileList: [{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}, {name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}]
@@ -439,6 +496,9 @@ export default {
 
       rules: {
         nameRu: [
+          { required: true, message: 'Please input product name (RU)', trigger: 'blur' },
+        ],
+        crmProductId: [
           { required: true, message: 'Please input product name (RU)', trigger: 'blur' },
         ],
         nameUa: [
@@ -459,12 +519,16 @@ export default {
         difficult: [
           { required: true, message: 'Please select product difficult', trigger: 'change' }
         ],
+        // price: [
+        //   { type: 'number', message: 'age must be a number', trigger: 'blur' },
+        //   { required: true, message: 'Please input product price', trigger: 'blur' },
+        //   { pattern: /^\d{1}$/, message: 'Price should be at least 1', trigger: 'blur' },
+        // ],
         price: [
-          { required: true, message: 'Please input product price', trigger: 'blur' },
-          { min: 1, message: 'Price should be at least 1', trigger: 'blur' },
+          { validator: this.checkPrice, trigger: 'blur' }
         ],
         discountPrice: [
-          { min: 1, message: 'Price should be at least 1', trigger: 'blur' },
+          { validator: this.checkDiscountPrice, trigger: 'blur' },
         ],
         descRu: [
           { required: true, message: 'Please input product description (RU)', trigger: 'blur' }
@@ -495,15 +559,18 @@ export default {
           this.editDialogVisible = false;
         }
         if (!this.list) {
-          await new Promise((r) => setTimeout(r, 2000));
+          await new Promise((r) => setTimeout(r, 3000));
           if (!this.list) return;
         }
         const product = this.list.find((item) => item.id === val);
+        console.log('product', product);
         if (!product) return;
         this.productToEdit = product;
         this.editForm = {
           articul: product.articul,
           crmProductId: product.crmProductId,
+          crmName: product.crmName,
+          crmDescription: product.crmDescription,
           nameRu: product.name.ru,
           nameUa: product.name.ua,
           type: product.type,
@@ -512,7 +579,8 @@ export default {
           difficult: product.difficult,
           price: product.price.toString(),
           discountPrice: product.discountPrice ? product.discountPrice.toString() : undefined,
-          inSale: product.inSale ?? false,
+          labelEnabled: !!product.labelData ?? false,
+          labelData: product.labelData ?? initialForm.labelData,
           descRu: product.description.ru,
           descUa: product.description.ua,
         }
@@ -552,6 +620,10 @@ export default {
     },
   },
   methods: {
+    async forceSrcSync() {
+      await crmSync();
+      this.$message('Data will be synced in 1 minute')
+    },
     handleCreateRemove(file, fileList) {
       this.fileCreateList = fileList;
     },
@@ -613,7 +685,6 @@ export default {
             },
             price: Number(this.createForm.price),
             category: this.createForm.category,
-            inSale: this.createForm.inSale,
             discountPrice: this.createForm.discountPrice ? Number(this.createForm.discountPrice) : undefined,
             gallery: {
               images: this.fileCreateList.map((item) => item.url),
@@ -641,10 +712,6 @@ export default {
       this.closeCreateDialog();
     },
     async submitEditForm() {
-      this.editForm = {
-        ...this.editForm,
-        price: Number(this.editForm.price)
-      }
       this.$refs.editForm.validate(async (valid) => {
         if (valid) {
           const dto = {
@@ -661,10 +728,14 @@ export default {
               ua: this.editForm.nameUa,
               ru: this.editForm.nameRu,
             },
-            price: this.editForm.price.toString(),
+            price: Number(this.editForm.price),
             category: this.editForm.category,
-            inSale: this.editForm.inSale,
-            discountPrice: this.editForm.discountPrice ? this.editForm.discountPrice.toString() : undefined,
+            labelData: this.editForm.labelEnabled
+              ? this.editForm.labelData.type === LabelType.SALE
+                ? { type: this.editForm.labelData.type, until: new Date(this.editForm.labelData.until).getTime() }
+                : { type: this.editForm.labelData.type }
+              : undefined,
+            discountPrice: this.editForm.discountPrice ? Number(this.editForm.discountPrice) : undefined,
             gallery: {
               images: this.fileEditList.map((item) => item.url),
             }
@@ -681,6 +752,36 @@ export default {
     resetEditForm() {
       this.$refs.editForm.resetFields();
       this.closeEditDialog();
+    },
+    checkPrice(rule, value, callback) {
+      if (!value) {
+        return callback(new Error('Please input the price'));
+      }
+      const price = Number(value);
+      if (!Number.isInteger(price)) {
+        return callback(new Error('Please input digits'));
+      } else {
+        if (price < 1) {
+          return callback(new Error('Price must be greater than 1'));
+        } else {
+          return callback();
+        }
+      }
+    },
+    checkDiscountPrice(rule, value, callback) {
+      if (value) {
+        const price = Number(value);
+        if (!Number.isInteger(price)) {
+          return callback(new Error('Please input digits'));
+        } else {
+          if (price >= this.editForm.price) {
+            return callback(new Error(`Discount price must be less than ${this.editForm.price}`));
+          } else {
+            return callback();
+          }
+        }
+      }
+      return callback();
     },
     openCreateDialog() {
       this.$router.push({ path: this.$route.path, query: { ...this.$route.query, create: 'true' } })

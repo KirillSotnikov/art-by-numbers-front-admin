@@ -20,6 +20,8 @@ export const ProductType = Object.freeze({
   acril_varnish: 'acril-varnish',
   molbert: 'molbert',
   tassel: 'tassel',
+
+  other: 'other',
 })
 
 export const productTypeLabels = {
@@ -44,6 +46,8 @@ export const productTypeLabels = {
   [ProductType.acril_varnish]: 'Акрилові лаки',
   [ProductType.molbert]: 'Мольберти',
   [ProductType.tassel]: 'Пензлі',
+
+  [ProductType.other]: 'Інше',
 }
 
 export const ProductSize = Object.freeze({
@@ -61,6 +65,7 @@ export const ProductSize = Object.freeze({
 });
 
 export const Difficult = Object.freeze({
+  NULL: '0',
   ONE: '1',
   TWO: '2',
   THREE: '3',
@@ -72,12 +77,25 @@ export const Category = Object.freeze({
   picture_by_numbers: 'picture-by-numbers',
   mosaik: 'mosaik',
   accessories: 'accessories',
+  other: 'other',
 })
 
 export const categoryLabels = {
   [Category.picture_by_numbers]: 'Картини за номерами',
   [Category.mosaik]: 'Алмазна мозаїка',
   [Category.accessories]: 'Аксесуари',
+  [Category.other]: 'Інше',
+}
+
+export const LabelType = Object.freeze({
+  SALE: 'sale',
+  NEW: 'new',
+  TOP_SALES: 'top-sales',
+})
+export const labelTypeLabels = {
+  [LabelType.SALE]: 'Розпродаж',
+  [LabelType.NEW]: 'Новинка',
+  [LabelType.TOP_SALES]: 'Топ продажів',
 }
 
 export const DeliveryType = Object.freeze({
