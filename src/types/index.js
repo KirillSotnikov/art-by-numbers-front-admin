@@ -76,6 +76,7 @@ export const Difficult = Object.freeze({
 export const Category = Object.freeze({
   picture_by_numbers: 'picture-by-numbers',
   mosaik: 'mosaik',
+  combo_technique: 'combo-technique',
   accessories: 'accessories',
   other: 'other',
 })
@@ -84,6 +85,7 @@ export const categoryLabels = {
   [Category.picture_by_numbers]: 'Картини за номерами',
   [Category.mosaik]: 'Алмазна мозаїка',
   [Category.accessories]: 'Аксесуари',
+  [Category.combo_technique]: 'Комбінована техніка',
   [Category.other]: 'Інше',
 }
 
